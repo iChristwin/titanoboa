@@ -60,6 +60,8 @@ from boa.util.lrudict import lrudict
 from boa.vm.gas_meters import ProfilingGasMeter
 from boa.vm.utils import to_bytes, to_int
 
+from boa.explorer import verify_contract
+
 # error messages for external calls
 EXTERNAL_CALL_ERRORS = ("external call failed", "returndatasize too small")
 
@@ -85,10 +87,10 @@ class VyperDeployer:
     def __call__(self, *args, **kwargs):
         return self.deploy(*args, **kwargs)
 
-    def deploy(self, *args, **kwargs):
-        return VyperContract(
-            self.compiler_data, *args, filename=self.filename, **kwargs
-        )
+    def deploy(self, verify_contract: bool = False, *args, **kwargs):
+        contract = VyperContract(self.compiler_data, *args, filename=self.filename, **kwargs)
+        if verify_contract is False: return contract
+        return contract.verify(*args, **kwargs)
 
     def deploy_as_blueprint(self, *args, **kwargs):
         return VyperBlueprint(
@@ -591,6 +593,9 @@ class VyperContract(_BaseVyperContract):
                 self.handle_error(computation)
 
             return address
+        
+    def verify(self, *args, **kwargs):
+        return verify_contract(self.compiler_data, self.filename, *args, **kwargs)
 
     @cached_property
     def _deployment_source_map(self):

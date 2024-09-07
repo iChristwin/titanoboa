@@ -94,3 +94,14 @@ def _resolve_implementation_address(address: str, uri: str, api_key: Optional[st
         return source_data["Implementation"]
     else:
         return address
+    
+def _verify_via_etherscan():
+    return
+
+def _verify_via_blocscout():
+    return
+
+def verify_contract(*args, **kwargs):
+    print(*args)
+    print(**kwargs)
+    return
